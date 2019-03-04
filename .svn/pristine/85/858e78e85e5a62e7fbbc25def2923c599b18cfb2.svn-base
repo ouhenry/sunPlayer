@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+   <resources>  
+    <color name="white">#FFFFFF</color>  
+    <color name="dark">#000000</color>  
+    <color name="red">#FF0000</color>  
+    <color name="black">#000000</color>
+    <color name="blue">#218dca </color>
+    <color name="orange">#FF6633</color>
+    <color name="gray">#d6d6d6</color>
+    <color name="gray_bg">#666666</color>
+    <color name="gray_light">#dcdcdc</color>
+    <color name="Transparent">#00000000</color>
+    
+    <color name="Transparent_menu">#77000000</color>
+    
+    <color name="yellow">#ea6000</color>
+    <color name="rel_back">#f8f8ff</color>
+    <color name="green">#70ca10</color>
+    <color name="design_green">#86a701</color>
+    <color name="blue_user">#9092fb</color>
+    <color name="purple">#8480df</color>
+    <color name="gray_author">#313842</color>
+    <color name="list_single">#2c333d</color>
+    <color name="message_selected_state">#198580e0</color>
+    <color name="setting_item_bg">#212832</color>
+    <color name="video_flight_parent_bg">#19626063</color>
+    <color name="record_bottom_color">#232a34</color>
+    
+    
+    <color name="viewfinder_frame">#ff000000</color>
+	<color name="viewfinder_laser">#ffff0000</color>
+	<color name="viewfinder_mask">#60000000</color>
+	<color name="result_view">#b0000000</color>
+	<color name="possible_result_points">#c0ffff00</color>
+	
+	<color name="entry01">#202020</color>
+	<color name="entry02">#002097</color>
+	<color name="entry03">#970083</color>
+	<color name="entry04">#132a75</color>
+	<color name="entry05">#faac16</color>
+	<color name="entry06">#dd3e1f</color>
+	<color name="entry07">#979200</color>
+	<color name="entry08">#009715</color>
+</resources>   

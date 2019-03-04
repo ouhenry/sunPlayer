@@ -1,0 +1,179 @@
+package com.exmart.qiyishow.ui.video;
+
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.text.Editable;
+import android.text.Selection;
+import android.text.TextWatcher;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import cn.sharesdk.renren.Renren;
+import cn.sharesdk.sina.weibo.SinaWeibo;
+import cn.sharesdk.tencent.qzone.QZone;
+import cn.sharesdk.wechat.moments.WechatMoments;
+
+import com.exmart.qiyishow.R;
+import com.exmart.qiyishow.analysisJson.JSONCommon;
+import com.exmart.qiyishow.bean.CommData;
+import com.exmart.qiyishow.share.OnekeyShare;
+import com.exmart.qiyishow.tools.Constant;
+import com.exmart.qiyishow.tools.Data;
+import com.exmart.qiyishow.tools.HttpNetwork;
+import com.exmart.qiyishow.tools.Tools;
+import com.exmart.qiyishow.ui.frame.BaseActivity;
+
+public class ReleaseActivity extends BaseActivity implements OnClickListener {
+	
+	private String mVideoId;
+	private EditText mEtAddTitle;
+	private EditText mEtAddDescribe;
+	private final static String RELEASE_VIDEO = "release_grid";
+
+	@Override
+	protected void loadLayout() {
+		setContentView(R.layout.release_layout);
+		TextView textTitle = (TextView) findViewById(R.id.tv_title);
+		textTitle.setText(getString(R.string.release_video));
+		TextView btnBack = (TextView) findViewById(R.id.bt_back);
+		btnBack.setOnClickListener(this);
+		btnBack.setBackgroundResource(R.drawable.back_bg);
+		btnBack.setVisibility(View.VISIBLE);
+		mEtAddTitle = (EditText) findViewById(R.id.et_add_title);
+		mEtAddDescribe = (EditText) findViewById(R.id.et_add_describe);
+		mEtAddDescribe.addTextChangedListener(new TextWatcher() {
+			private CharSequence temp;
+			private boolean isEdit = true;
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				if (isEdit == false) {
+					Toast.makeText(ReleaseActivity.this, getResources().getString(R.string.edit_limit),
+							Toast.LENGTH_SHORT).show();
+					Editable etext = mEtAddDescribe.getText();
+					int pos = etext.length();
+					Selection.setSelection(etext, pos);
+				}
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				temp = s;
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				if (s.length() > 140) {
+					isEdit = false;
+					s.delete(temp.length() - 1, temp.length());
+					mEtAddDescribe.setText(s);
+				}
+			}
+		});
+	}
+
+	@Override
+	protected void loadListener() {
+		findViewById(R.id.btn_release).setOnClickListener(this);
+	}
+
+	@Override
+	protected void Request() {
+		
+	}
+
+	@Override
+	protected void logic() {
+		mVideoId = getIntent().getStringExtra("videoId");
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.bt_back:
+			finish();
+			break;
+		case R.id.btn_release:
+			String title = mEtAddTitle.getText().toString();
+			String describe = mEtAddDescribe.getText().toString();
+			String userId = Tools.getValueInSharedPreference(this, Constant.SPNAME, Constant.USERID);
+			
+			CheckBox boxSina = (CheckBox) findViewById(R.id.cb_sina);
+			CheckBox boxZone = (CheckBox) findViewById(R.id.cb_zone);
+			CheckBox boxRenren = (CheckBox) findViewById(R.id.cb_renren);
+			CheckBox boxQuan = (CheckBox) findViewById(R.id.cb_pengyouquan);
+			if (boxSina.isChecked()) {
+				showShare(true,SinaWeibo.NAME,false);
+			}
+			if (boxZone.isChecked()) {
+				showShare(true,QZone.NAME,false);
+			}
+			if (boxRenren.isChecked()) {
+				showShare(true,Renren.NAME,false);
+			}
+			if (boxQuan.isChecked()) {
+				showShare(true,WechatMoments.NAME,false);
+			}
+			new ReleaseVideo().execute(userId, mVideoId, title, describe);
+			break;
+
+		default:
+			break;
+		}
+		
+	}
+	private void showShare(boolean silent, String platform, boolean captureView) {
+		final OnekeyShare oks = new OnekeyShare();
+		oks.setTitle("标题");
+		oks.setText("内容");
+		oks.setUrl("http://www.doujialou.com");
+//		oks.setImageUrl(sharePic);
+		oks.setTitleUrl("http://www.doujialou.com");
+		oks.setComment(getResources().getString(R.string.share));
+		oks.setSite(getResources().getString(R.string.app_name));
+		oks.setSilent(silent);
+		if (platform != null) {
+			oks.setPlatform(platform);
+		}
+		oks.setDialogMode();
+		oks.show(this);
+	}
+	class ReleaseVideo extends AsyncTask<String, Void, String> {
+
+		@Override
+		protected String doInBackground(String... args) {
+			String result = HttpNetwork.httpNetwork(
+					Data.VideoPublish(args[0], args[1], args[2], args[3]),
+					Constant.VIDEO_PUBLISH, ReleaseActivity.this);
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			System.out.println(result);
+			try {
+				CommData commData = new JSONCommon().getCommonCode(result);
+				if (commData.getCode().equals("1")) {
+					Intent intent = new Intent();
+					intent.putExtra("videoId", mVideoId);
+					intent.setAction(RELEASE_VIDEO);
+					sendBroadcast(intent);
+					ReleaseActivity.this.finish();
+					Toast.makeText(ReleaseActivity.this, commData.getMsg(), Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(ReleaseActivity.this, commData.getMsg(), Toast.LENGTH_SHORT).show();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+}

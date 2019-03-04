@@ -1,0 +1,139 @@
+<resources>
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <item name="android:windowNoTitle">true</item>
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+    
+    <!-- 首页    -->
+	<style name="myshedle_home_bottom_home">
+		<item name="android:textSize">@dimen/bottom_tab_font_size</item>
+		<item name="android:textColor">@drawable/home_text_color</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:gravity">center_horizontal|bottom</item>
+        <item name="android:paddingBottom">@dimen/bottom_tab_padding_botton</item>
+        <item name="android:paddingTop">@dimen/bottom_tab_padding_up</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:button">@null</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:drawablePadding">@dimen/bottom_tab_padding_drawable</item>
+        <item name="android:layout_weight">1.0</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:drawableBottom">@drawable/myshedle_home_bg_home</item>
+	</style>
+	
+	 <!-- 模板  -->
+	<style name="myshedle_home_bottom_template">
+		<item name="android:textSize">@dimen/bottom_tab_font_size</item>
+		<item name="android:textColor">@drawable/home_text_color</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:button">@null</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:drawablePadding">@dimen/bottom_tab_padding_drawable</item>
+        <item name="android:layout_weight">1.0</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:drawableTop">@drawable/myshedle_home_bg_template</item>
+	</style>
+	
+	 <!-- 个人中心  -->
+	<style name="myshedle_home_bottom_info">
+		<item name="android:textSize">@dimen/bottom_tab_font_size</item>
+		<item name="android:textColor">@drawable/home_text_color</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:gravity">center_horizontal|bottom</item>
+        <item name="android:paddingBottom">@dimen/bottom_tab_padding_botton</item>
+        <item name="android:paddingTop">@dimen/bottom_tab_padding_up</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:button">@null</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:drawablePadding">@dimen/bottom_tab_padding_drawable</item>
+        <item name="android:layout_weight">1.0</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:drawableBottom">@drawable/myshedle_home_bg_info</item>
+        
+	</style>
+	
+
+	 <!-- 自定义的圆角Dialog -->
+    
+<style name="mydialog_style" parent="@android:style/Theme.Dialog"> 
+        <item name="android:windowFrame">@null</item> 
+         <item name="android:windowIsFloating">true</item> 
+         <item name="android:windowIsTranslucent">true</item> 
+         <item name="android:windowNoTitle">true</item> 
+         <item name="android:background">@drawable/mydialog_bg</item> 
+         <item name="android:windowBackground">@android:color/transparent</item> 
+         <item name="android:backgroundDimEnabled">true</item> 
+         <item name="android:backgroundDimAmount">0.6</item> 
+     </style>
+     
+<style name="mydialog_radius" > 
+        <item name="android:windowFrame">@null</item> 
+         <item name="android:windowIsFloating">true</item> 
+         <item name="android:windowIsTranslucent">true</item> 
+         <item name="android:windowNoTitle">true</item> 
+         <item name="android:background">@drawable/mydialog_radius</item> 
+         <item name="android:windowBackground">@android:color/transparent</item> 
+         <item name="android:backgroundDimEnabled">true</item> 
+         <item name="android:backgroundDimAmount">0.6</item> 
+     </style>
+     <style name="Dialog_loading" parent="android:style/Theme.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowFrame">@null</item>
+        <!-- 无边框 -->
+        <item name="android:windowNoTitle">true</item>
+        <!-- 没有标题 -->
+        <item name="android:windowIsTranslucent">true</item>
+        <!-- 背景是否半透明 -->
+    </style>
+
+    <style name="Dialog_loading_noDim" parent="android:style/Theme.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowFrame">@null</item>
+        <!-- 无边框 -->
+        <item name="android:windowNoTitle">true</item>
+        <!-- 没有标题 -->
+        <item name="android:windowIsTranslucent">true</item>
+        <!-- 背景是否半透明 -->
+        <item name="android:backgroundDimEnabled">false</item>
+        <!-- 背景是否模糊 -->
+    </style>
+    <style name="popupAnimation" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/in</item>
+        <item name="android:windowExitAnimation">@anim/out</item>
+    </style>
+    
+    <declare-styleable name="FlatButton">
+        <attr name="pb_colorPressed" format="color" />
+        <attr name="pb_colorNormal" format="color" />
+        <attr name="pb_cornerRadius" format="dimension" />
+    </declare-styleable>
+    
+    <declare-styleable name="ProcessButton">
+        <attr name="pb_textProgress" format="string" />
+        <attr name="pb_textComplete" format="string" />
+        <attr name="pb_textError" format="string" />
+        <attr name="pb_colorProgress" format="color" />
+        <attr name="pb_colorComplete" format="color" />
+        <attr name="pb_colorError" format="color" />
+    </declare-styleable>
+</resources>

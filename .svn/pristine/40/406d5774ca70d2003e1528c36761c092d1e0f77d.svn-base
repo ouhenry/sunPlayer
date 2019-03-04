@@ -1,0 +1,271 @@
+package com.exmart.qiyishow.tools;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import android.content.Context;
+
+/**
+ * 接口请求数据封装类
+ * @author ZhaoYe
+ *
+ */
+public class Data {
+	/**
+	 * 通用参数
+	 * @return
+	 */
+	public static  List<NameValuePair> General(Context context){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("Platform", Tools.getValueInSharedPreference(context, Constant.OSNAME, Constant.PLATFORM)));
+		list.add(new BasicNameValuePair("OSVersion", Tools.getValueInSharedPreference(context, Constant.OSNAME, Constant.OSVERSION)));
+		list.add(new BasicNameValuePair("AppVersion", Tools.getValueInSharedPreference(context, Constant.OSNAME, Constant.APPVERSIONCODE)));
+		list.add(new BasicNameValuePair("ScreenWidth", Tools.getValueInSharedPreference(context, Constant.OSNAME, Constant.SCREENWIDTH)));
+		list.add(new BasicNameValuePair("ScreenHeight", Tools.getValueInSharedPreference(context, Constant.OSNAME, Constant.SCREEHEIGHT)));
+		return list;
+	}
+	/**
+	 * 获取app信息
+	 * @param context 上下文
+	 * @return
+	 */
+	public static List<NameValuePair> SysAppInfo(Context context){
+		return General(context);
+	}
+	
+	/**
+	 * 视频列表
+	 * @param context 上下文
+	 * @param Type 1.热门 2最新
+	 * @param Order 0.热度 1.时间
+	 * @param PageNo 页码
+	 * @param CountOfPage 每页条数
+	 * @return
+	 */
+	public static List<NameValuePair> VideoList(Context context,String Type,String Order,String PageNo,String CountOfPage){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.addAll(General(context));
+		list.add(new BasicNameValuePair("Type",Type));
+		list.add(new BasicNameValuePair("Order",Order));
+		list.add(new BasicNameValuePair("PageNo",PageNo));
+		list.add(new BasicNameValuePair("CountOfPage",CountOfPage));
+		return list;
+	}
+	/**
+	 * 用户视频列表
+	 * @param context 上下文
+	 * @param UserId 用户ID
+	 * @param Type 1.未发布 2.已发布
+	 * @param PageNo 页码
+	 * @param CountOfPage 每页条数
+	 * @return
+	 */
+	public static List<NameValuePair> VideoListByUser(Context context,String UserId,String Type,String PageNo,String CountOfPage){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.addAll(General(context));
+		list.add(new BasicNameValuePair("Type",Type));
+		list.add(new BasicNameValuePair("UserId",UserId));
+		list.add(new BasicNameValuePair("PageNo",PageNo));
+		list.add(new BasicNameValuePair("CountOfPage",CountOfPage));
+		return list;
+	}
+	/**
+	 * 获取视频详情
+	 * @param context 
+	 * @param videoId 视频Id
+	 */
+	public static List<NameValuePair> videoDetail(Context context, String videoId){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.addAll(General(context));
+		list.add(new BasicNameValuePair("VideoId", videoId));
+		return list;
+	}
+	/**
+	 * 视频点赞。如果点过赞，则取消点赞
+	 * @param userId 用户id
+	 * @param videoId 视频id
+	 */
+	public static List<NameValuePair> VideoLike( String userId, String videoId){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("UserId", userId));
+		list.add(new BasicNameValuePair("VideoId", videoId));
+		return list;
+	}
+	/**
+	 * 发布评论接口
+	 * @param userId 用户id
+	 * @param videoId 视频id
+	 * @param context 评论内容
+	 */
+	public static List<NameValuePair> VideoComment(String userId, String videoId,
+			String content, String replayUserId) {
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("UserId", userId));
+		list.add(new BasicNameValuePair("VideoId", videoId));
+		list.add(new BasicNameValuePair("Content", content));
+		list.add(new BasicNameValuePair("Reply", replayUserId));
+		return list;
+	}
+	/**
+	 * 获取评论
+	 * @param videoId 视频id
+	 * @param pageNo 页码
+	 * @param CountOfPage 每页条数
+	 * @return
+	 */
+	public static List<NameValuePair> VideoGetComments(String videoId, String pageNo, String countOfPage){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("VideoId", videoId));
+		list.add(new BasicNameValuePair("PageNo", pageNo));
+		list.add(new BasicNameValuePair("CountOfPage", countOfPage));
+		return list;
+	}
+	/**
+	 * 发布或者删除视频请求参数
+	 * @param userId 用户id
+	 * @param videoId 视频id
+	 * @return
+	 */
+	public static List<NameValuePair> VideoPublish(String userId, String videoId,
+			 String title, String content, String bdUserId, String bdChannelId){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("UserId", userId));
+		list.add(new BasicNameValuePair("VideoId", videoId));
+		list.add(new BasicNameValuePair("Title", title));
+		list.add(new BasicNameValuePair("Content", content));
+		list.add(new BasicNameValuePair("bduserId", bdUserId));
+		list.add(new BasicNameValuePair("bdchannelId", bdChannelId));
+		return list;
+	}
+	public static List<NameValuePair> VideoRemove(String userId, String videoId){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("UserId", userId));
+		list.add(new BasicNameValuePair("VideoId", videoId));
+		return list;
+	}
+	/**
+	 * 举报视频请求参数
+	 * @param userId
+	 * @param videoId
+	 * @param content
+	 * @return
+	 */
+	public static List<NameValuePair> VideoReport(String userId, String videoId, String content){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("UserId", userId));
+		list.add(new BasicNameValuePair("VideoId", videoId));
+		list.add(new BasicNameValuePair("Content", content));
+		return list;
+	}
+	/**
+	 * 意见反馈请求参数
+	 * @param userId
+	 * @param videoId
+	 * @param content
+	 * @param content
+	 * @return
+	 */
+	public static List<NameValuePair> feedback(String userId, String content,String ContactWay){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("UserId", userId));
+		list.add(new BasicNameValuePair("Content", content));
+		list.add(new BasicNameValuePair("ContactWay", ContactWay));
+		return list;
+	}
+	/**
+	 * 推送设置
+	 * @param userId
+	 * @param videoId
+	 * @param content
+	 * @return
+	 */
+	public static List<NameValuePair> settingPush(String userId, String videoId, String content){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("UserId", videoId));
+		list.add(new BasicNameValuePair("Content", videoId));
+		return list;
+	}
+	/**
+	 * 获取用户信息请求参数
+	 * @param userId
+	 * @param videoId
+	 * @param content
+	 * @return
+	 */
+	public static List<NameValuePair> userInfo(String userId){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("UserId", userId));
+		return list;
+	}
+	/**
+	 * 更新用户信息
+	 * @param userId
+	 * @param nikeName
+	 * @param sex
+	 * @param areaCode
+	 * @return
+	 */
+	public static List<NameValuePair> updateUserInfo(String userId, String nikeName, String sex, String ProvinceCode, String CityCode, String AreaCode){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("UserId", userId));
+		list.add(new BasicNameValuePair("NickName", nikeName));
+		list.add(new BasicNameValuePair("Sex", sex));
+		list.add(new BasicNameValuePair("ProvinceCode", ProvinceCode));
+		list.add(new BasicNameValuePair("CityCode", CityCode));
+		list.add(new BasicNameValuePair("AreaCode", AreaCode));
+		return list;
+	}
+	/**
+	 * 视频播放次数请求参数
+	 * @param videoId
+	 * @return
+	 */
+	public static List<NameValuePair> videoPalyCount(String videoId){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("VideoId", videoId));
+		return list;
+	}
+	/**
+	 * 获取用户消息
+	 * @param userId
+	 * @param type
+	 * @param pageNo
+	 * @param countOfPage
+	 * @return
+	 */
+	public static List<NameValuePair> userMessage(String userId, String type, String pageNo, String countOfPage){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("UserId", userId));
+		list.add(new BasicNameValuePair("Type", type));
+		list.add(new BasicNameValuePair("PageNo", pageNo));
+		list.add(new BasicNameValuePair("CountOfPage", countOfPage));
+		return list;
+	}
+	
+	/**
+	 * 获取所有模板视频类型
+	 * @return
+	 */
+	public static List<NameValuePair> getTypeTemplate(){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		return list;
+	}
+	
+	/**
+	 * 获取所有模板视频列表
+	 * @param TemplateId
+	 * @param pageNo
+	 * @param countOfPage
+	 * @return
+	 */
+	public static List<NameValuePair> getTypeTemplateList(String TemplateId, String pageNo, String countOfPage){
+		List<NameValuePair> list = new ArrayList<NameValuePair>();
+		list.add(new BasicNameValuePair("TemplateId", TemplateId));
+		list.add(new BasicNameValuePair("PageNo", pageNo));
+		list.add(new BasicNameValuePair("CountOfPage", countOfPage));
+		return list;
+	}
+}

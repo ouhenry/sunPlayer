@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="fileendingword">
+        <item>.doc</item>
+        <item>.docx</item>
+    </array>
+    <array name="fileendingpdf">
+        <item>.pdf</item>
+    </array>
+
+    <declare-styleable name="roundedimageview">
+        <attr name="border_thickness" format="dimension" />
+        <attr name="border_inside_color" format="color" />
+        <attr name="border_outside_color" format="color"></attr>
+    </declare-styleable>
+
+    <array name="dialog_select_picture">
+        <item>拍照</item>
+        <item>从相册中选择</item>
+    </array>
+    <array name="dialog_select_sex">
+        <item>男</item>
+        <item>女</item>
+    </array>
+    <array name="dialog_select_report">
+        <item>MV带有色情或政治内容</item>
+        <item>盗用他人的MV</item>
+        <item>其他原因</item>
+    </array>
+
+</resources>

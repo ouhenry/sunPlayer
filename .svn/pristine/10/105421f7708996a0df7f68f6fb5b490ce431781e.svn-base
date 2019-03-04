@@ -1,0 +1,350 @@
+package com.exmart.qiyishow.ui.frame;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.baidu.mobstat.StatService;
+import com.exmart.qiyishow.R;
+import com.exmart.qiyishow.adapter.VideoListAdapter;
+import com.exmart.qiyishow.analysisJson.JSONCommon;
+import com.exmart.qiyishow.analysisJson.JSONVideoList;
+import com.exmart.qiyishow.bean.CommData;
+import com.exmart.qiyishow.bean.Video;
+import com.exmart.qiyishow.tools.Constant;
+import com.exmart.qiyishow.tools.Data;
+import com.exmart.qiyishow.tools.HttpNetwork;
+import com.exmart.qiyishow.ui.video.VideoDetailActivity;
+import com.exmart.qiyishow.ui.view.HeaderGridView;
+import com.exmart.qiyishow.ui.view.mGridView;
+
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.preference.PreferenceActivity.Header;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.Toast;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.GridView;
+
+/**
+ * 
+ * 视频列表界面 最热 <b>1<b/> 最新 <b>2</b> 已发布 <b>3</b> 未发布 <b>4</b>
+ * 
+ */
+public class VideoGridFragment extends Fragment implements OnItemClickListener,
+		SwipeRefreshLayout.OnRefreshListener, OnScrollListener {
+	private mGridView uGridview;
+	private HeaderGridView hGridview;
+	private List<Video> mListVideo;
+	private VideoListAdapter mAdapter;
+	private Activity mActiviy;
+	private Intent intent;
+	private int pageNo = 1;
+	private String mVideoOrder = "0";
+	private String mVideoType;
+	private String mUserId;
+	private String mlistDataCache;
+	private boolean mIsFirstLoad = true;
+	private final static String UPDATE_GRID = "update_grid";
+	private final static String RELEASE_GRID = "release_grid";
+	private boolean mHasMoreList = true;
+	private View footView;
+	private boolean isLoading = false;
+
+	private SwipeRefreshLayout mSwipeLayout;
+
+	public static VideoGridFragment getVideoGridFragmentInstance(String arg) {
+		VideoGridFragment videoGridFragment = new VideoGridFragment();
+		Bundle bundle = new Bundle();
+		bundle.putString("type", arg);
+		videoGridFragment.setArguments(bundle);
+		return videoGridFragment;
+	}
+
+	public static VideoGridFragment getVideoGridFragmentInstance(String arg,
+			String userId) {
+		VideoGridFragment videoGridFragment = new VideoGridFragment();
+		Bundle bundle = new Bundle();
+		bundle.putString("type", arg);
+		bundle.putString("userId", userId);
+		videoGridFragment.setArguments(bundle);
+		return videoGridFragment;
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View view;
+		Bundle bundle = getArguments();
+		mVideoType = (String) bundle.get("type");
+		if (mVideoType.equals("3") || mVideoType.equals("4")) {
+			view = inflater.inflate(R.layout.video_list_layout, null);
+		} else {
+			view = inflater.inflate(R.layout.home_video_list_layout, null);
+		}
+		return view;
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		mActiviy = getActivity();
+		mListVideo = new ArrayList<Video>();
+		mAdapter = new VideoListAdapter(mActiviy, mListVideo);
+		footView = LayoutInflater.from(mActiviy).inflate(R.layout.loading_view, null);
+		if (mVideoType.equals("3") || mVideoType.equals("4")) {
+			uGridview = (mGridView) view.findViewById(R.id.gv_video);
+			uGridview.setAdapter(mAdapter);
+			uGridview.setOnItemClickListener(this);
+
+		} else {
+			hGridview = (HeaderGridView) view.findViewById(R.id.h_gv_video);
+			hGridview.addFooterView(footView);
+			hGridview.setAdapter(mAdapter);
+			hGridview.setOnItemClickListener(this);
+			hGridview.setOnScrollListener(this);
+			mSwipeLayout = (SwipeRefreshLayout) view
+					.findViewById(R.id.swipe_container);
+		}
+		
+		Bundle bundle = this.getArguments();
+		if (bundle == null) {
+			return;
+		}
+		initCacheData();
+		if (bundle.containsKey("userId")) {
+			mUserId = bundle.getString("userId");
+			new VideoListByUserAsysncRequest().execute(mVideoType, mUserId);
+		} else {
+			 new VideoListAsysncRequest().execute(pageNo+ "");
+			mSwipeLayout.setOnRefreshListener(this);
+//			mSwipeLayout.refreshDrawableState();
+		}
+		
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(UPDATE_GRID);
+		updateListBroadCastReviver reviver = new updateListBroadCastReviver();
+		mActiviy.registerReceiver(reviver, intentFilter);
+	}
+
+	private void initCacheData() {
+		SharedPreferences preferences = mActiviy.getSharedPreferences("List",
+				Context.MODE_PRIVATE);
+		String data = preferences.getString(mVideoType, "");
+		System.out.println(data);
+		if (TextUtils.isEmpty(data)) {
+			return;
+		}
+		CommData commData = null;
+		try {
+			commData = new JSONCommon().getCommonCode(data);
+			if (commData.getCode().equals("1")) {
+				List<Video> list = new JSONVideoList().getVideoList(commData
+						.getJosnObj());
+				mListVideo.addAll(list);
+			} else if (commData.getCode().equals(0)) {
+				Toast.makeText(mActiviy, commData.getMsg(), Toast.LENGTH_SHORT)
+						.show();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		mAdapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		Video video;
+		video = mListVideo.get(position);
+		intent = new Intent(mActiviy, VideoDetailActivity.class);
+		intent.putExtra("id", video.getId());
+		intent.putExtra("UserId", mUserId);
+		intent.putExtra("type", mVideoType);
+		startActivity(intent);
+		// }
+
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		StatService.onResume(this);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		StatService.onPause(this);
+	}
+
+	class VideoListAsysncRequest extends AsyncTask<String, Void, String> {
+
+		@Override
+		protected String doInBackground(String... args) {
+			String result = HttpNetwork.httpNetwork(
+					Data.VideoList(mActiviy, mVideoType, mVideoOrder, args[0]
+							+ "", Constant.COUNT_OF_PAGE), Constant.VIDEOLIST,
+					mActiviy);
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			 mSwipeLayout.setRefreshing(false);
+			 isLoading = false;
+			 footView.setVisibility(View.GONE);
+			 
+			CommData commData = null;
+			try {
+				commData = new JSONCommon().getCommonCode(result);
+				if (commData.getCode().equals("1")) {
+					pageNo ++;
+					if (mIsFirstLoad) {
+						pageNo = 1;
+						mListVideo.clear();
+						mIsFirstLoad = false;
+						mlistDataCache = result;
+						SharedPreferences preferences = mActiviy.getSharedPreferences(
+								"List", 0);
+						Editor editor = preferences.edit();
+						if (!TextUtils.isEmpty(mlistDataCache)) {
+							editor.putString(mVideoType, mlistDataCache);
+						}
+						editor.commit();
+					}
+					
+					List<Video> list = new JSONVideoList()
+							.getVideoList(commData.getJosnObj());
+					if (list.size() == 0) {
+						mHasMoreList = false;
+					}
+					mListVideo.addAll(list);
+				} else if (commData.getCode().equals(0)) {
+					Toast.makeText(mActiviy, commData.getMsg(),
+							Toast.LENGTH_SHORT).show();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			mAdapter.notifyDataSetChanged();
+			super.onPostExecute(result);
+		}
+	}
+
+	class VideoListByUserAsysncRequest extends AsyncTask<String, Void, String> {
+
+		@Override
+		protected String doInBackground(String... args) {
+			String result = HttpNetwork
+					.httpNetwork(Data.VideoListByUser(mActiviy, "1",
+							mVideoType, pageNo + "", Constant.COUNT_OF_PAGE),
+							Constant.VideoListByUser, mActiviy);
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			mlistDataCache = result;
+			CommData commData = null;
+			if (pageNo == 1) {
+				mListVideo.clear();
+				SharedPreferences preferences = mActiviy.getSharedPreferences(
+						"List", 0);
+				Editor editor = preferences.edit();
+				if (!TextUtils.isEmpty(mlistDataCache)) {
+					editor.putString(mVideoType, mlistDataCache);
+				}
+				editor.commit();
+			}
+			try {
+				commData = new JSONCommon().getCommonCode(result);
+				if (commData.getCode().equals("1")) {
+					List<Video> list = new JSONVideoList()
+							.getVideoList(commData.getJosnObj());
+					mListVideo.addAll(list);
+				} else if (commData.getCode().equals(0)) {
+					Toast.makeText(mActiviy, commData.getMsg(),
+							Toast.LENGTH_SHORT).show();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			mAdapter.notifyDataSetChanged();
+
+			super.onPostExecute(result);
+		}
+	}
+
+	private class updateListBroadCastReviver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(UPDATE_GRID)) {
+				String strVideoId = intent.getStringExtra("videoId");
+				for (Video video : mListVideo) {
+					if (video.getId().equals(strVideoId)) {
+						mListVideo.remove(video);
+					}
+				}
+				mAdapter.notifyDataSetChanged();
+			} else if (intent.getAction().equals(RELEASE_GRID)) {
+
+				if (mVideoType.equals("4")) {// 未发布界面
+					String strVideoId = intent.getStringExtra("videoId");
+					for (Video video : mListVideo) {
+						if (video.getId().equals(strVideoId)) {
+							mListVideo.remove(video);
+						}
+					}
+					mAdapter.notifyDataSetChanged();
+				} else if (mVideoType.equals("3")) {// 用户已发布界面
+					// 添加一条数据
+				} else if (mVideoType.equals(1)) {// 最新数据
+					// 添加一条数据
+				}
+			}
+		}
+	}
+
+	@Override
+	public void onRefresh() {
+		mIsFirstLoad = true;
+		new VideoListAsysncRequest().execute("1");
+	}
+
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+		
+	}
+
+	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem,
+			int visibleItemCount, int totalItemCount) {
+		if (firstVisibleItem + visibleItemCount == totalItemCount){
+			if (!isLoading && mHasMoreList) {
+				isLoading = true;
+				footView.setVisibility(View.VISIBLE);
+				new VideoListAsysncRequest().execute(pageNo + "");
+			}
+		}
+	}
+}

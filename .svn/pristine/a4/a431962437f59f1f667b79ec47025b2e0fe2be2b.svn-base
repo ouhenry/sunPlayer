@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/gray_author" 
+    android:padding="10dp"
+    android:id="@+id/layout_frame">
+
+    <ImageView
+        android:id="@+id/user_photo"
+        android:layout_width="@dimen/comment_list_user_avatar_size"
+        android:layout_height="@dimen/comment_list_user_avatar_size"
+        android:adjustViewBounds="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/ic_launcher" />
+    <TextView 
+        android:id="@+id/comment_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:text="小啦啦"
+        android:layout_toRightOf="@id/user_photo"
+        android:layout_alignTop="@id/user_photo"
+        android:layout_marginLeft="8dp"/>
+    <TextView 
+        android:id="@+id/comment_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:text="很有意思"
+        android:layout_toRightOf="@id/user_photo"
+        android:layout_below="@id/comment_user"
+        android:layout_marginRight="80dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"/>
+    <ImageView 
+        android:id="@+id/iv_comment_replay"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:singleLine="true"
+        android:background="@drawable/ic_reply"
+        android:layout_alignTop="@id/comment_user"
+        android:layout_alignParentRight="true"/>
+    <TextView 
+        android:id="@+id/comment_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:layout_below="@id/comment_user"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="5dp"/>
+
+</RelativeLayout>

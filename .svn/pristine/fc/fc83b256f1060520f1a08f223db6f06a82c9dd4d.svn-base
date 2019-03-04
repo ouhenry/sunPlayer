@@ -1,0 +1,25 @@
+package com.exmart.qiyishow.analysisJson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.exmart.qiyishow.bean.Video;
+
+public class JSONVideoDetail {
+	
+	public Video getVideo(JSONObject data) throws JSONException{
+		Video video = new Video();
+		video.setId(data.getString("VideoId"));
+		video.setImageUrl(data.getString("ImageUrl"));
+		video.setClickNum(data.getString("ClickNum"));
+		video.setVideoTitle(data.getString("Title"));
+		video.setIsLiked(data.getString("isLiked"));
+		video.setUploadTime(data.getString("UploadTime"));
+		video.setCountOfComment(data.getString("CountOfComment"));
+		video.setCountOflike(data.getString("CountOfLike"));
+		video.setUrl(data.getString("Url"));
+		video.setAuthorNikeName(data.getString("NikeName"));
+		video.setUserId(data.getString("UserId"));
+		return video;
+	}
+}

@@ -1,0 +1,80 @@
+package com.exmart.qiyishow.bean;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class TemplateVideo implements Parcelable{
+	
+	private String tname;
+	private String picurl;
+	private String url;
+	private String id;
+	private String desc;
+	
+	public TemplateVideo() {
+		
+	}
+	
+	public String getTname() {
+		return tname;
+	}
+	public void setTname(String tname) {
+		this.tname = tname;
+	}
+	public String getPicurl() {
+		return picurl;
+	}
+	public void setPicurl(String picurl) {
+		this.picurl = picurl;
+	}
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getDesc() {
+		return desc;
+	}
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(id);
+		dest.writeString(tname);
+		dest.writeString(desc);
+		dest.writeString(picurl);
+		dest.writeString(url);
+	}
+	
+	public static final Parcelable.Creator<TemplateVideo> CREATOR = new Creator<TemplateVideo>() {
+		
+		@Override
+		public TemplateVideo[] newArray(int size) {
+			return new TemplateVideo[size];
+		}
+		
+		@Override
+		public TemplateVideo createFromParcel(Parcel source) {
+			return new TemplateVideo(source);
+		}
+	};
+	private TemplateVideo(Parcel in) {
+		id = in.readString();
+		tname = in.readString();
+		desc = in.readString();
+		picurl = in.readString();
+		url = in.readString();
+	}
+}

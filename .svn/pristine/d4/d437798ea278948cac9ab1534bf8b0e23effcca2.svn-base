@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" 
+    android:background="@color/gray_author">
+    <include layout="@layout/titile_bar_layout"/>
+    
+    <EditText android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/edit_comment_bg"
+        android:gravity="top"
+        android:padding="10dp"
+        android:hint="请添加描述"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp" >
+
+        <TextView
+            android:id="@+id/center_indicate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/same_time_share"
+            android:textColor="@color/purple"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@id/center_indicate"
+            android:background="@drawable/login_left" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_toRightOf="@id/center_indicate"
+            android:background="@drawable/login_right" />
+    </RelativeLayout>
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="10dp">
+        <CheckBox android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="新浪微博"
+             android:textColor="@color/gray_bg"
+              android:gravity="center_horizontal"
+            android:drawableTop="@drawable/sina_share_selector"
+            android:button="@null"/>
+        <CheckBox android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="qq空间"
+             android:textColor="@color/gray_bg"
+            android:drawableTop="@drawable/qq_zone_share_selector"
+            android:layout_marginLeft="5dp"
+             android:gravity="center_horizontal"
+            android:button="@null"/>
+        <CheckBox android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="人人网"
+            android:gravity="center_horizontal"
+            android:textColor="@color/gray_bg"
+            android:drawableTop="@drawable/renren_share_selector"
+            android:button="@null"/>
+        <CheckBox android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+             android:gravity="center_horizontal"
+            android:text="朋友圈"
+             android:textColor="@color/gray_bg"
+            android:drawableTop="@drawable/pengyouquan_share_selector"
+            android:button="@null"/>
+        
+    </LinearLayout>
+    <Button android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:id="@+id/btn_release"
+        android:text="发布"
+        android:textColor="@color/white"
+        android:background="@color/release_bg_color"/>
+</LinearLayout>

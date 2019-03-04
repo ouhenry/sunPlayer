@@ -1,0 +1,54 @@
+package com.exmart.qiyishow.ui.video;
+
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.exmart.qiyishow.R;
+import com.exmart.qiyishow.ui.frame.BaseActivity;
+
+public class ReleaseActivity extends BaseActivity implements OnClickListener {
+
+	@Override
+	protected void loadLayout() {
+		setContentView(R.layout.release_layout);
+		TextView textTitle = (TextView) findViewById(R.id.tv_title);
+		textTitle.setText(getString(R.string.release_video));
+		TextView btnBack = (TextView) findViewById(R.id.bt_back);
+		btnBack.setOnClickListener(this);
+		btnBack.setBackgroundResource(R.drawable.back_bg);
+		btnBack.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	protected void loadListener() {
+		findViewById(R.id.btn_release).setOnClickListener(this);
+	}
+
+	@Override
+	protected void Request() {
+		
+	}
+
+	@Override
+	protected void logic() {
+		
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.bt_back:
+			finish();
+			break;
+		case R.id.btn_release:
+			break;
+
+		default:
+			break;
+		}
+		
+	}
+
+}

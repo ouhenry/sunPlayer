@@ -1,0 +1,100 @@
+package com.exmart.qiyishow.ui.home;
+
+import com.exmart.qiyishow.R;
+import com.exmart.qiyishow.adapter.EffectsListAdapter;
+import com.exmart.qiyishow.ui.frame.BaseActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
+import android.widget.TextView;
+/**
+ * 特效列表
+ * 
+ * @author ZhaoYe
+ *
+ */
+public class EffectsListActivity extends BaseActivity implements OnClickListener,OnItemClickListener{
+	private Intent intent;
+	private TextView mText_bcak;
+	private TextView mText_title;
+	private ListView mListView;
+	private EffectsListAdapter adapter;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	protected void loadLayout() {
+		setContentView(R.layout.activity_effects_list);
+		mText_bcak = (TextView) findViewById(R.id.bt_back);
+		mText_bcak.setVisibility(View.VISIBLE);
+		mText_bcak.setBackgroundResource(R.drawable.back_bg);
+		mText_title = (TextView) findViewById(R.id.tv_title);
+		mText_title.setText(getString(R.string.effects_list));
+		mListView = (ListView) findViewById(R.id.List_effects);
+		adapter = new EffectsListAdapter(this);
+		mListView.setAdapter(adapter);
+		
+	}
+
+	@Override
+	protected void loadListener() {
+		mText_bcak.setOnClickListener(this);
+		mListView.setOnItemClickListener(this);
+	}
+
+	@Override
+	protected void Request() {
+		
+	}
+	
+	Handler handler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch(msg.what){
+			case 0:
+				break;
+			}
+			
+		}
+	};
+
+
+	@Override
+	protected void logic() {
+		
+
+	}
+
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		intent = new Intent(this,EffectsDetailActivity.class);
+		startActivity(intent);
+		
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch(v.getId()){
+		case R.id.bt_back:
+			finish();
+			break;
+		}
+		
+	}
+	
+}

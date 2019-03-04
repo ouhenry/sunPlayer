@@ -1,0 +1,52 @@
+package com.exmart.qiyishow.bean;
+
+/**
+ * 
+ * 评论实体类
+ *
+ */
+public class Comment {
+	private String id;
+	private String conetent;
+	private String commentUserName;
+	private String autherAvatarUrl;
+	private String date;
+	private String userId;
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getConetent() {
+		return conetent;
+	}
+	public void setConetent(String conetent) {
+		this.conetent = conetent;
+	}
+	public String getCommentUserName() {
+		return commentUserName;
+	}
+	public void setCommentUserName(String commentUserName) {
+		this.commentUserName = commentUserName;
+	}
+	public String getAutherAvatarUrl() {
+		return autherAvatarUrl;
+	}
+	public void setAutherAvatarUrl(String autherAvatarUrl) {
+		this.autherAvatarUrl = autherAvatarUrl;
+	}
+	public String getDate() {
+		return date;
+	}
+	public void setDate(String date) {
+		this.date = date;
+	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+}

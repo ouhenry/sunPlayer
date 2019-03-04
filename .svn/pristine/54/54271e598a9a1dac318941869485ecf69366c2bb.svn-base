@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.exmart.qiyishow"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="18" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.GET_PACKAGE_SIZE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> 
+    <uses-permission android:name="android.permission.VIBRATE" />   
+    <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER"/>
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    
+    
+    <permission
+        android:name="android.permission.FLASHLIGHT"
+        android:permissionGroup="android.permission-group.HARDWARE_CONTROLS"
+        android:protectionLevel="normal" />
+     <uses-feature android:name="android.hardware.camera"/>
+     <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
+     
+    <application
+        android:name="com.exmart.qiyishow.push.DemoApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+        
+        <!-- 渠道商编号 -->
+		<meta-data android:name="BaiduMobAd_CHANNEL" android:value="Google Play" />
+		<!-- 您从百度网站获取的APP KEY -->
+		<meta-data android:name="BaiduMobAd_STAT_ID" android:value="10795968b3" />
+		<!--以下 -->
+		<!-- 是否开启错误日志统计，默认为false -->
+		<meta-data android:name="BaiduMobAd_EXCEPTION_LOG" android:value="true" />
+		<!-- 日志发送策略，可选值：APP_START、ONCE_A_DAY、SET_TIME_INTERVAL，默认为APP_START -->
+		<meta-data android:name="BaiduMobAd_SEND_STRATEGY" android:value="APP_START" />
+		<!-- 日志发送策略 为SET_TIME_INTERVAL时，需设定时间间隔。取值为1-24的整数，默认为1 -->
+		<!-- <meta-data android:name="BaiduMobAd_TIME_INTERVAL" android:value="2" /> -->
+		<!-- 日志仅在wifi网络下发送，默认为false -->
+		<meta-data android:name="BaiduMobAd_ONLY_WIFI" android:value="false" />
+		<!-- 是否获取基站位置信息 ,默认为true-->
+		<meta-data android:name="BaiduMobAd_CELL_LOCATION" android:value="true" />
+		<!-- 是否获取GPS位置信息，默认为true -->
+		<meta-data android:name="BaiduMobAd_GPS_LOCATION" android:value="true" />
+		<!-- 是否获取WIFI位置信息，默认为true -->
+		<meta-data android:name="BaiduMobAd_WIFI_LOCATION" android:value="true" />
+        
+        <activity
+            android:name="com.exmart.qiyishow.ui.home.LogoActivity"
+            android:theme="@android:style/Theme.Translucent" 
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ui.frame.BaseActivity" android:screenOrientation="portrait" />
+        <activity android:name=".ui.frame.GuideActivity" android:screenOrientation="portrait" />
+        <activity android:name=".ui.frame.HomeFrame" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name=".ui.frame.ActiveDetailActiviey" android:screenOrientation="portrait"/>
+        
+        
+        <activity android:name=".ui.user.UserInfoActivity" android:screenOrientation="portrait" />
+        <activity android:name=".ui.home.TemplateActivity" android:screenOrientation="portrait" />
+        <activity android:name=".ui.home.TemplateListActivity" android:screenOrientation="portrait" />
+        <activity android:name=".ui.home.TemplateDetailActivity" android:screenOrientation="portrait" android:launchMode="singleTop"/>
+        <activity android:name=".ui.home.AddCaptionsActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".ui.home.EditDataActivity" android:screenOrientation="portrait" />
+        <activity android:name=".ui.home.MessageActivity" android:screenOrientation="portrait" />
+        <activity android:name=".ui.home.SelectFaceActivity" android:screenOrientation="portrait" />
+        <activity android:name=".ui.user.LoginActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".ui.home.ShowActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".ui.home.CropImageActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".ui.home.LocalVideoList" android:screenOrientation="portrait"/>
+        <activity android:name=".ui.home.EffectsListActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".ui.home.EffectsDetailActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".ui.home.ShowCityActivity" android:screenOrientation="portrait"/>
+        
+        
+        <activity android:name=".ui.video.VideoDetailActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".ui.video.ReleaseActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".ui.video.MediaPlayerActivity" 
+            	  android:configChanges="orientation|keyboardHidden|screenSize"
+			      android:label="@string/app_name"
+			      android:screenOrientation="sensorLandscape"
+			      android:theme="@style/FensterFullscreenTheme"></activity>
+        <activity android:name=".ui.setting.SettingActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".ui.setting.FeedbackActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".ui.setting.CheckUpdateActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".ui.setting.HowUseActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".record.FFmpegPreviewActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".record.FFmpegRecorderActivity" android:screenOrientation="portrait"/>
+        
+        
+        <activity android:name=".push.PushDemoActivity" android:screenOrientation="portrait"/>
+        
+        <activity
+            android:name="cn.sharesdk.framework.ShareSDKUIShell"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" >
+            <intent-filter>
+                <data android:scheme="tencent100371282" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.exmart.qiyishow.wxapi.WXEntryActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.tencent.tauth.AuthActivity"
+            android:launchMode="singleTask"
+            android:noHistory="true" >
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+				
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="tencent1103373447" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.tencent.connect.common.AssistActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        
+        <!-- 推送开始 -->
+         <activity
+            android:name="com.exmart.qiyishow.push.LoginActivity"
+            android:configChanges="orientation|keyboardHidden"
+            >
+        </activity>
+        
+        <activity
+            android:name="com.exmart.qiyishow.push.CustomActivity"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|keyboardHidden" >
+        </activity>
+        
+         <!-- push富媒体，不使用富媒体推送不需要 -->
+        <activity
+            android:name="com.baidu.android.pushservice.richmedia.MediaViewActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="MediaViewActivity" >
+        </activity>
+        <activity
+            android:name="com.baidu.android.pushservice.richmedia.MediaListActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="MediaListActivity"
+            android:launchMode="singleTask" >
+        </activity>
+        <!-- push富媒体结束 -->
+        
+        <!-- push应用定义消息receiver声明 -->
+        <receiver android:name="com.exmart.qiyishow.push.MyPushMessageReceiver">
+            <intent-filter>
+                <!-- 接收push消息 -->
+                <action android:name="com.baidu.android.pushservice.action.MESSAGE" />
+                <!-- 接收bind,unbind,fetch,delete等反馈消息 -->
+                <action android:name="com.baidu.android.pushservice.action.RECEIVE" />
+                <action android:name="com.baidu.android.pushservice.action.notification.CLICK" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- push必须的receviver和service声明 -->
+        <receiver android:name="com.baidu.android.pushservice.PushServiceReceiver"
+            android:process=":bdservice_v1">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="com.baidu.android.pushservice.action.notification.SHOW" />
+                <action android:name="com.baidu.android.pushservice.action.media.CLICK" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.baidu.android.pushservice.RegistrationReceiver"
+            android:process=":bdservice_v1">
+            <intent-filter>
+                <action android:name="com.baidu.android.pushservice.action.METHOD" />
+                <action android:name="com.baidu.android.pushservice.action.BIND_SYNC" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
+                <data android:scheme="package" />
+            </intent-filter>                   
+        </receiver>
+        <service
+            android:name="com.baidu.android.pushservice.PushService"
+            android:exported="true"
+            android:process=":bdservice_v1"  >
+            <intent-filter>
+                <action android:name="com.baidu.android.pushservice.action.PUSH_SERVICE" />
+            </intent-filter>
+        </service>
+        <!-- push结束 -->
+        
+		<!-- 在百度开发者中心查询应用的API Key -->
+        <meta-data android:name="api_key" android:value="m4mvEulaK3iEMqRzt94OasdN" />
+        
+        <!-- 推送结束 -->
+        
+        
+    </application>
+    
+    
+
+</manifest>

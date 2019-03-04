@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_author" 
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/title_bar"
+        layout="@layout/titile_bar_layout" />
+
+    <TextView
+        android:id="@+id/Text_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_bar"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/video_text_head_photo"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <GridView
+        android:id="@+id/Grid_Face"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:cacheColorHint="@color/Transparent"
+        android:horizontalSpacing="-50dp"
+        android:listSelector="@color/Transparent"
+        android:numColumns="3"
+        android:scrollbars="none"
+        android:verticalSpacing="3dp"
+        android:layout_weight="1.0" >
+    </GridView>
+
+    <Button
+        android:id="@+id/bt_make_face"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/media_opt_selector"
+        android:text="@string/video_new"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+</LinearLayout>

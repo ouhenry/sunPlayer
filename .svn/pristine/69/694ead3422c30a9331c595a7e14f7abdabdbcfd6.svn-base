@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:background="@drawable/bg" >
+
+    <include
+        android:id="@+id/title_layout"
+        layout="@layout/titile_bar_layout" />
+    
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/title_layout"
+        android:layout_margin="3dp"
+        android:background="@color/Transparent"
+        android:cacheColorHint="@color/Transparent"
+        android:dividerHeight="1px"
+        android:listSelector="@color/Transparent"
+        android:padding="3dp"
+        android:scrollbars="none" />
+    <!-- province  city  area -->
+    
+
+</RelativeLayout>

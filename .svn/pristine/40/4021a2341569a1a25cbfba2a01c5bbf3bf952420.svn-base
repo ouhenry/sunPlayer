@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_author"
+    android:orientation="vertical" >
+
+    <include layout="@layout/titile_bar_layout" />
+
+    <ListView
+        android:id="@+id/lv_local_video"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cacheColorHint="@color/Transparent"
+        android:divider="#a0a0a0"
+        android:dividerHeight="1dp"
+        android:listSelector="@color/Transparent"
+        android:scrollbars="none" />
+
+</LinearLayout>

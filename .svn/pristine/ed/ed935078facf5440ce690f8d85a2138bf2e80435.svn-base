@@ -1,0 +1,479 @@
+package com.exmart.qiyishow.ui.home;
+
+import java.nio.charset.Charset;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.exmart.qiyishow.R;
+import com.exmart.qiyishow.analysisJson.JSONCommon;
+import com.exmart.qiyishow.bean.CommData;
+import com.exmart.qiyishow.bean.TemplateVideo;
+import com.exmart.qiyishow.loader.core.DisplayImageOptions;
+import com.exmart.qiyishow.loader.core.LoadVideoTask;
+import com.exmart.qiyishow.loader.core.VideoLoader;
+import com.exmart.qiyishow.loader.core.assist.FailReason;
+import com.exmart.qiyishow.loader.core.display.SimpleBitmapDisplayer;
+import com.exmart.qiyishow.loader.core.listener.VideoLoadingListener;
+import com.exmart.qiyishow.loader.core.listener.VideoLoadingProgressListener;
+import com.exmart.qiyishow.tools.Constant;
+import com.exmart.qiyishow.tools.CustomMultipartEntity;
+import com.exmart.qiyishow.tools.Tools;
+import com.exmart.qiyishow.tools.CustomMultipartEntity.ProgressListener;
+import com.exmart.qiyishow.ui.frame.HomeFrame;
+import com.exmart.qiyishow.ui.user.LoginActivity;
+import com.exmart.qiyishow.ui.video.MediaPlayerActivity;
+import com.exmart.qiyishow.ui.view.GenerateProcessButton;
+import com.exmart.qiyishow.ui.view.MarqueeView;
+import com.exmart.qiyishow.ui.view.ProgressWheel;
+import com.exmart.qiyishow.ui.view.TextureVideoView;
+
+/**
+ * 
+ * 模版详情
+ * 
+ */
+public class TemplateDetailActivity extends Activity implements
+		OnClickListener, VideoLoadingListener, VideoLoadingProgressListener {
+	private TextView tv_title;
+	private ImageView ivAddPicture;
+	public static Handler mhandler;
+	private final static int FIRE_RATE = 1;
+	private static final int CROP_PIC = 3;
+	private final static int UPDATE_PROGRESS = 4;
+	private final static int REQUEST_ADD_CAPTIONS = 5;
+	private Bitmap mBitmap;
+	private ProgressDialog pd;
+	private TemplateVideo mTemplateVideo;
+
+	private ProgressWheel mTvPercentage;
+
+	private TextureVideoView mTvv;
+	private ImageView mIvPause;
+
+	private ProgressListener mProgressListener;
+
+	private GenerateProcessButton mGpb;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.template_detail_layout);
+		tv_title = (TextView) findViewById(R.id.tv_title);
+		tv_title.setText("模板详情");
+		ivAddPicture = (ImageView) findViewById(R.id.iv_pic_face);
+		ivAddPicture.setOnClickListener(this);
+		findViewById(R.id.bt_add_letter).setOnClickListener(this);
+		findViewById(R.id.bt_compose).setOnClickListener(this);
+		TextView tvBack = (TextView) findViewById(R.id.bt_back);
+		tvBack.setBackgroundResource(R.drawable.back_bg);
+		tvBack.setVisibility(View.VISIBLE);
+		tvBack.setOnClickListener(this);
+		findViewById(R.id.btn_full_screen).setOnClickListener(this);
+		mTvPercentage = (ProgressWheel) findViewById(R.id.pw_percentage);
+		mTvPercentage.spin();
+		mIvPause = (ImageView) findViewById(R.id.iv_pause);
+		mGpb = (GenerateProcessButton) findViewById(R.id.bt_compose);
+		final MarqueeView mv = (MarqueeView) findViewById(R.id.marqueeView100);
+        mv.setPauseBetweenAnimations(500);
+        mv.setSpeed(10);
+        getWindow().getDecorView().post(new Runnable() {
+            @Override
+            public void run() {
+                mv.startMarquee();
+            }
+        });
+
+		initData();
+		mhandler = new Handler() {
+			public void handleMessage(android.os.Message msg) {
+				switch (msg.what) {
+				case CROP_PIC:
+					mBitmap = (Bitmap) msg.obj;
+					ImageView iv = (ImageView) findViewById(R.id.iv_pic_face);
+					iv.setImageBitmap(toRoundCorner(mBitmap, 270));
+
+					break;
+				case FIRE_RATE:
+					mTvPercentage.setVisibility(View.GONE);
+					break;
+				case UPDATE_PROGRESS:
+
+					break;
+				default:
+					break;
+				}
+			};
+		};
+	}
+
+	private void initData() {
+		mTemplateVideo = getIntent().getParcelableExtra("templateVideo");
+		((TextView) findViewById(R.id.tv_template_title))
+				.setText(mTemplateVideo.getTname());
+		((TextView) findViewById(R.id.tv_template_user)).setText(mTemplateVideo
+				.getDesc());
+		mTvv = (TextureVideoView) findViewById(R.id.tvv_template_video);
+		DisplayImageOptions options = new DisplayImageOptions.Builder()
+				.cacheInMemory(false)
+				.cacheOnDisk(true)
+				.displayer(new SimpleBitmapDisplayer())
+				.considerExifParams(true).build();
+		VideoLoader.getInstance().displayVideo(mTemplateVideo.getUrl(),
+				options, TemplateDetailActivity.this,
+				TemplateDetailActivity.this);
+		
+		mTvv.setOnClickListener(this);
+		String strCaptions = mTemplateVideo.getSubTitle1() + "#" + mTemplateVideo.getSubTitle2() + "#"
+				+ mTemplateVideo.getSubTitle3() + mTemplateVideo.getSubTitle4() + "#"
+				+mTemplateVideo.getSubTitle5();
+				TextView tvCaptions = (TextView) findViewById(R.id.tv_video_captions);
+				tvCaptions.setText(strCaptions);
+	}
+	
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.iv_pic_face:
+			Intent intentFace = new Intent(this, SelectFaceActivity.class);
+			startActivity(intentFace);
+			break;
+		case R.id.btn_full_screen:
+			Intent intentFull = new Intent(this, MediaPlayerActivity.class);
+			intentFull.putExtra("videoUrl", mTemplateVideo.getUrl());
+			startActivity(intentFull);
+			break;
+		case R.id.bt_add_letter:
+			Intent intent = new Intent(this, AddCaptionsActivity.class);
+			intent.putExtra("TemplateVideo", mTemplateVideo);
+			startActivityForResult(intent, REQUEST_ADD_CAPTIONS);
+			break;
+		case R.id.tvv_template_video:
+			if (mTvv.isPlaying()) {
+				mTvv.pause();
+				mIvPause.setVisibility(View.VISIBLE);
+			} else {
+				mIvPause.setVisibility(View.GONE);
+				mTvv.play();
+			}
+			break;
+		case R.id.bt_compose:
+			mGpb.setEnabled(false);
+			if (mBitmap == null) {
+				Toast.makeText(this, "头像不能为空", Toast.LENGTH_SHORT).show();
+				mGpb.setEnabled(true);
+				return;
+			}
+			String userId = Tools.getValueInSharedPreference(this,
+					Constant.SPNAME, Constant.USERID);
+			if (TextUtils.isEmpty(userId)) {
+				intent = new Intent(this, LoginActivity.class); 
+				startActivity(intent);
+				Toast.makeText(this, "用户未登录", Toast.LENGTH_SHORT).show();
+				mGpb.setEnabled(true);
+				return;
+			}
+			new AsyncTask<String, Integer, String>() {
+				@Override
+				protected void onPreExecute() {
+					// pd = new ProgressDialog(TemplateDetailActivity.this);
+					// pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+					// setProgressBarVisibility(true);
+					// pd.setMessage("正在上传...");
+					// pd.setCancelable(false);
+					// pd.setMax(100);
+					// pd.show();
+				}
+
+				@Override
+				protected String doInBackground(String... params) {
+					byte[] data = null;
+					if (mBitmap != null) {
+						System.out.println(mBitmap.getWidth());
+						System.out.println(mBitmap.getHeight());
+						System.out.println("================================");
+						data = Tools.bitmap2Byte(mBitmap);
+					}
+					final long totalSize = data.length;
+					String response = "";
+					try {
+
+						// arrayEntity = new ByteArrayEntity(pic);
+						// arrayEntity.setContentType("application/octet-stream");
+						HttpContext httpContext = new BasicHttpContext();
+						HttpPost post = new HttpPost(
+								Constant.VIDEO_IMAGE_UPLOAD);
+						mProgressListener = new ProgressListener() {
+
+							@Override
+							public void transferred(long num) {
+								publishProgress((int) ((num / (float) totalSize) * 100));
+								// mGpb.setProgress((int) ((num / (float)
+								// totalSize) * 100));
+							}
+						};
+						CustomMultipartEntity multipartEntiry = new CustomMultipartEntity(mProgressListener);
+						String bdUserId = Tools.getValueInSharedPreference(
+								TemplateDetailActivity.this, Constant.OSNAME,
+								Constant.BD_USERID);
+						String bdChannelId = Tools.getValueInSharedPreference(
+								TemplateDetailActivity.this, Constant.OSNAME,
+								Constant.BD_CHANNELID);
+						ByteArrayBody body = new ByteArrayBody(data, "a.png");
+						StringBody video_id = new StringBody(params[1]);
+						StringBody user_id = new StringBody(params[0]);
+						StringBody bd_id = new StringBody(bdUserId);
+						StringBody chnannelId = new StringBody(bdChannelId);
+						StringBody subTitle_1 = new StringBody(
+								mTemplateVideo.getSubTitle1(),Charset.forName("UTF-8"));
+						StringBody subTitle_2 = new StringBody(
+								mTemplateVideo.getSubTitle2(),Charset.forName("UTF-8"));
+						StringBody subTitle_3 = new StringBody(
+								mTemplateVideo.getSubTitle3(),Charset.forName("UTF-8"));
+						StringBody subTitle_4 = new StringBody(
+								mTemplateVideo.getSubTitle4(),Charset.forName("UTF-8"));
+						StringBody subTitle_5 = new StringBody(
+								mTemplateVideo.getSubTitle5(),Charset.forName("UTF-8"));
+						multipartEntiry.addPart("VideoId", video_id);
+						multipartEntiry.addPart("UserId", user_id);
+						multipartEntiry.addPart("UserId", user_id);
+						multipartEntiry.addPart("UserId", user_id);
+						multipartEntiry.addPart("bdchannelId", chnannelId);
+						multipartEntiry.addPart("bduserId", bd_id);
+						multipartEntiry.addPart("Subtitles1", subTitle_1);
+						multipartEntiry.addPart("Subtitles2", subTitle_2);
+						multipartEntiry.addPart("Subtitles3", subTitle_3);
+						multipartEntiry.addPart("Subtitles4", subTitle_4);
+						multipartEntiry.addPart("Subtitles5", subTitle_5);
+						multipartEntiry.addPart("Image", body);
+						post.setEntity(multipartEntiry);
+						HttpParams httpParams = new BasicHttpParams();
+						HttpConnectionParams.setConnectionTimeout(httpParams,
+								40 * 1000);
+						HttpConnectionParams
+								.setSoTimeout(httpParams, 40 * 1000);
+
+						HttpClient client = new DefaultHttpClient(httpParams);
+						HttpResponse httpResponse = client.execute(post,
+								httpContext);
+						response = EntityUtils.toString(httpResponse
+								.getEntity());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					return response;
+				}
+
+				@Override
+				protected void onPostExecute(String result) {
+					// pd.dismiss();
+					CommData commData;
+					try {
+						commData = new JSONCommon().getCommonCode(result);
+						if (commData.getCode().equals("1")){
+							showDialog();
+						} else if (commData.getCode().equals("0")){
+							Toast.makeText(TemplateDetailActivity.this, commData.getMsg(), Toast.LENGTH_SHORT).show();
+							finish();
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+
+				@Override
+				protected void onProgressUpdate(final Integer... values) {
+					// pd.setProgress(values[0]);
+					mhandler.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							if (values[0] > 100) {
+								mGpb.setProgress(100);
+								return;
+							} else {
+								mGpb.setProgress(values[0]);
+							}
+
+							if (values[0] < 100) {
+								// mhandler.postDelayed(this, 100);
+							} else {
+
+							}
+						}
+					}, 100);
+				}
+
+				@Override
+				protected void onCancelled() {
+
+				};
+			}.execute(userId, mTemplateVideo.getId());
+			break;
+		case R.id.bt_back:
+			finish();
+			break;
+
+		default:
+			break;
+		}
+	}
+	private void showDialog() {
+		AlertDialog dialog = new AlertDialog.Builder(this)
+		.setTitle("提示")
+		.setMessage("上传图片成功,视频处理需要耐心等待一会儿,收到通知后,视频完成后出现在个人中心未发布中.")
+		.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+				Intent intent = new Intent(TemplateDetailActivity.this, HomeFrame.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+			}
+		}).create();
+		dialog.show();
+	}
+
+	@Override
+	protected void onResume() {
+		// if (mTvv.isPlaying()) {
+		// mTvv.pause();
+		mIvPause.setVisibility(View.GONE);
+		// }
+		super.onResume();
+	}
+	
+	
+
+	@Override
+	protected void onPause() {
+		if (mTvv.isPlaying()) {
+			mTvv.pause();
+		}
+		super.onPause();
+	}
+
+	@Override
+	protected void onDestroy() {
+		mTvv.relaseMediaPlayer();
+		LoadVideoTask task = VideoLoader.getInstance().getTasks().get(mTemplateVideo.getUrl());
+		if (task != null) {
+			task.setSyncLoading(false);
+		}
+		super.onDestroy();
+	}
+
+//	@Override
+//	protected void onNewIntent(Intent intent) {
+//		ArrayList<String> captions = intent.getStringArrayListExtra("captions");
+//		if (captions == null) {
+//			return;
+//		}
+//		String strCaptions = "";
+//		for (String str : captions) {
+//			strCaptions += str;
+//		}
+//		TextView tvCaptions = (TextView) findViewById(R.id.tv_video_captions);
+//		tvCaptions.setText(strCaptions);
+//		tvCaptions.findFocus();
+//		super.onNewIntent(intent);
+//	}
+
+	@Override
+	public void onProgressUpdate(String videoUri, int current, int total) {
+		
+		mTvPercentage.setText(Math.round(100.0f * current / total) + "%");
+	}
+
+	@Override
+	public void onLoaingStarted(String videoUri) {
+
+	}
+
+	@Override
+	public void onLoadingFailed(String videoUri, FailReason failReason) {
+
+	}
+
+	@Override
+	public void onLoadingComplete(String vodeoUri) {
+		mhandler.sendEmptyMessage(FIRE_RATE);
+		mTvv.setDataSource(vodeoUri);
+		mTvv.play();
+	}
+
+	@Override
+	public void onLoadingCancelled(String videoUri) {
+
+	}
+
+	private Bitmap toRoundCorner(Bitmap bitmap, int pixels) {
+		Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+				bitmap.getHeight(), Config.ARGB_8888);
+		Canvas canvas = new Canvas(output);
+		final int color = 0xff424242;
+		final Paint paint = new Paint();
+		final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+		final RectF rectF = new RectF(rect);
+		final float roundPx = pixels;
+		paint.setAntiAlias(true);
+		canvas.drawARGB(0, 0, 0, 0);
+		paint.setColor(color);
+		canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+		paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
+		canvas.drawBitmap(bitmap, rect, rect, paint);
+		return output;
+	}
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode != RESULT_OK) {
+			return;
+		}
+		if (requestCode == REQUEST_ADD_CAPTIONS && data != null) {
+			
+			mTemplateVideo = data.getParcelableExtra("TemplateVideo");
+			String strCaptions = mTemplateVideo.getSubTitle1() + "#" + mTemplateVideo.getSubTitle2() + "#"
+			+ mTemplateVideo.getSubTitle3() + mTemplateVideo.getSubTitle4() + "#"
+			+mTemplateVideo.getSubTitle5();
+			TextView tvCaptions = (TextView) findViewById(R.id.tv_video_captions);
+			tvCaptions.setText(strCaptions);
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+}

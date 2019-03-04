@@ -1,0 +1,89 @@
+package com.exmart.qiyishow.adapter;
+
+import java.util.List;
+
+import com.exmart.qiyishow.R;
+import com.exmart.qiyishow.bean.Video;
+import com.exmart.qiyishow.loader.core.DisplayImageOptions;
+import com.exmart.qiyishow.loader.core.ImageLoader;
+import com.exmart.qiyishow.loader.core.display.FadeInBitmapDisplayer;
+import com.exmart.qiyishow.loader.core.display.RoundedBitmapDisplayer;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+
+public class VideoListAdapter extends BaseAdapter{
+	private Context mContext;
+	private List<Video> mListVideo;
+	private ViewHolder mViewHodler;
+	private LayoutInflater mInflater;
+	private DisplayImageOptions options;
+	private DisplayImageOptions optionsAvatar;
+	
+	public VideoListAdapter(Context context, List<Video> list){
+		this.mContext = context;
+		this.mListVideo = list;
+		mInflater = LayoutInflater.from(mContext);
+		options = new DisplayImageOptions.Builder()
+		.cacheInMemory(true)
+		.cacheOnDisk(true)
+		.showImageOnLoading(R.drawable.list_item_default_bg)
+		.showImageOnFail(R.drawable.list_item_default_bg)
+		.showImageForEmptyUri(R.drawable.list_item_default_bg)
+		.displayer(new FadeInBitmapDisplayer(2000))
+		.considerExifParams(true)
+		.build();
+		optionsAvatar = new DisplayImageOptions.Builder()
+		.cacheInMemory(true)
+		.cacheOnDisk(true)
+		.considerExifParams(true)
+		.displayer(new RoundedBitmapDisplayer(60))
+		.build();
+	}
+
+	@Override
+	public int getCount() {
+		return mListVideo.size();
+	}
+
+	@Override
+	public Video getItem(int position) {
+		return mListVideo.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		if(convertView == null){
+			convertView = mInflater.inflate(R.layout.video_list_asset, null);
+			mViewHodler = new ViewHolder();
+			mViewHodler.tvVideoTitle = (TextView) convertView.findViewById(R.id.tv_video_title);
+			mViewHodler.ivVideoImage = (ImageView) convertView.findViewById(R.id.iv_video_picture);
+			mViewHodler.ivUserAvatar = (ImageView) convertView.findViewById(R.id.iv_user_avatar);
+			convertView.setTag(mViewHodler);
+		} else {
+			mViewHodler = (ViewHolder)convertView.getTag();
+		}
+		Video video = mListVideo.get(position);
+		mViewHodler.tvVideoTitle.setText(video.getVideoTitle());
+		ImageLoader.getInstance().displayImage(video.getImageUrl(), mViewHodler.ivVideoImage, options); 
+		ImageLoader.getInstance().displayImage(video.getAuthorImageUrl(), mViewHodler.ivUserAvatar, optionsAvatar); 
+		return convertView;
+	}
+	
+	class ViewHolder {
+		private ImageView ivVideoImage;
+		private ImageView ivUserAvatar;
+		private TextView tvVideoTitle;
+	}
+}

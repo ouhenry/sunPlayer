@@ -1,0 +1,132 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_author" >
+
+    <RelativeLayout
+        android:id="@+id/recorder_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/record_bottom_color"
+        android:paddingBottom="20dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingTop="20dp" >
+
+        <Button
+            android:id="@+id/recorder_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="40dp"
+            android:background="@drawable/recoder_video_bg"
+            android:drawablePadding="10dp"
+            android:textSize="12dp" />
+
+        <Button
+            android:id="@+id/recorder_next"
+            android:layout_width="66dp"
+            android:layout_height="36dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/btn_recorder_next"
+            android:enabled="false"
+            android:text="下一步"
+            android:textColor="#444444"
+            android:textSize="14dp" />
+
+        <Button
+            android:id="@+id/import_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="40dp"
+            android:background="@drawable/import_video_bg"
+            android:drawablePadding="10dp"
+            android:textColor="@drawable/btn_recorder_video_text"
+            android:textSize="12dp" />
+    </RelativeLayout>
+
+    <com.exmart.qiyishow.record.ProgressView
+        android:id="@+id/recorder_progress"
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:layout_above="@id/recorder_bottom"
+        android:background="@color/red" />
+
+    <RelativeLayout
+        android:id="@+id/recorder_surface_parent"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@id/recorder_progress" >
+
+        <SurfaceView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/recorder_flashlight_parent"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/video_flight_parent_bg"
+        android:gravity="center_vertical" >
+
+        <TextView
+            android:id="@+id/txtTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/recorder_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:layout_toRightOf="@id/txtTimer"
+            android:background="@drawable/cancel_recorder_bg" />
+
+        <TextView
+            android:id="@+id/recorder_frontcamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="20dp"
+            android:background="@drawable/video_rotation"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/recorder_flashlight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_toRightOf="@id/recorder_frontcamera"
+            android:background="@drawable/video_lamp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/recorder_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_toRightOf="@id/recorder_flashlight"
+            android:background="@drawable/video_state_standard" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/recorder_surface_state"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#7f000000"
+        android:clickable="false"
+        android:focusable="false"
+        android:scaleType="center"
+        android:visibility="gone" />
+
+</RelativeLayout>

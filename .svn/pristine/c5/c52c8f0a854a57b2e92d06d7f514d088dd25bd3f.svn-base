@@ -1,0 +1,41 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    
+    <dimen name="bottom_tab_font_size">12dip</dimen>
+ 	<dimen name="bottom_tab_padding_up">0dip</dimen>
+ 	<dimen name="bottom_tab_padding_botton">18dip</dimen>
+	<dimen name="bottom_tab_padding_drawable">10dip</dimen>
+	<dimen name="loading_view_progress_size">45dp</dimen>
+	<dimen name="loading_view_margin_layout">10dp</dimen>
+	<dimen name="loading_view_margin_right">5dp</dimen>
+	<dimen name="show_video_list_user_avatar_size">25dp</dimen>
+	<dimen name="comment_list_user_avatar_size">30dp</dimen>
+	
+	<dimen name="corner_radius">2dp</dimen>
+    <dimen name="layer_padding">3dp</dimen>
+    
+    
+	<dimen name="header_height">200dp</dimen>
+	<dimen name="min_header_height">250dp</dimen>
+	<dimen name="header_logo_size">100dp</dimen>
+	
+	 <!-- PADDINGS -->
+  <dimen name="padding_none">0dp</dimen>
+  <dimen name="padding_small">2dp</dimen>
+  <dimen name="padding_medium">4dp</dimen>
+  <dimen name="padding_extra_large">48dp</dimen>
+
+  <!-- MEDIA CONTROLLER -->
+  <dimen name="media_controller_text_size">14sp</dimen>
+  <dimen name="media_controller_seekbar_width">32dip</dimen>
+  <dimen name="media_controller_seekbar_height">32dip</dimen>
+  <dimen name="media_controller_top_margin">80dip</dimen>
+  <dimen name="media_controller_bottom_margin">12dip</dimen>
+
+  <dimen name="media_controller_button_height">52dip</dimen>
+  <dimen name="media_controller_button_width">71dip</dimen>
+	
+</resources>

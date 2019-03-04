@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray_author" >
+
+    <include
+        android:id="@+id/title_bar"
+        layout="@layout/titile_bar_layout" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/title_bar" >
+
+        <LinearLayout
+            android:id="@+id/whole_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/et_captions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:background="@drawable/edit_comment_bg"
+                android:hint="@string/and_captions_hint"
+                android:minHeight="40dp"
+                android:padding="5dp" />
+             <EditText
+                android:id="@+id/et_captions2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:background="@drawable/edit_comment_bg"
+                android:hint="@string/and_captions_hint"
+                android:minHeight="40dp"
+                android:padding="5dp" />
+             <EditText
+                android:id="@+id/et_captions3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:background="@drawable/edit_comment_bg"
+                android:hint="@string/and_captions_hint"
+                android:minHeight="40dp"
+                android:padding="5dp" />
+             <EditText
+                android:id="@+id/et_captions4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:background="@drawable/edit_comment_bg"
+                android:hint="@string/and_captions_hint"
+                android:minHeight="40dp"
+                android:padding="5dp" />
+             <EditText
+                android:id="@+id/et_captions5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:background="@drawable/edit_comment_bg"
+                android:hint="@string/and_captions_hint"
+                android:minHeight="40dp"
+                android:padding="5dp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/bt_add_edit"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/purple"
+        android:text="添加" />
+
+</RelativeLayout>

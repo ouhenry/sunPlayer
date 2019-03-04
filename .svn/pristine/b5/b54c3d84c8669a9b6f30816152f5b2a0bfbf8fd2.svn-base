@@ -1,0 +1,348 @@
+package com.exmart.qiyishow.ui.home;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+
+import com.exmart.qiyishow.R;
+import com.exmart.qiyishow.crop.ImageProcess;
+import com.exmart.qiyishow.crop.MoveGestureDetector;
+import com.exmart.qiyishow.crop.RotateGestureDetector;
+import com.exmart.qiyishow.loader.utils.IoUtils;
+import com.exmart.qiyishow.loader.utils.StorageUtils;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.PointF;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.DisplayMetrics;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+public class CropImageActivity extends Activity implements OnTouchListener, OnClickListener{
+    
+    // Member fields.
+    private ImageView mImg;
+    private RelativeLayout mTemplateImg;
+    private int mScreenWidth;
+    private int mScreenHeight;
+    private CropHandler mCropHandler;
+    private static ProgressDialog mProgressDialog;
+    private int mSelectedVersion;
+    
+    private Matrix mMatrix = new Matrix();
+    private float mScaleFactor = 0.8f;
+    private float mRotationDegrees = 0.f;
+    private float mFocusX = 0.f;
+    private float mFocusY = 0.f;
+    private int mImageHeight, mImageWidth;
+    private ScaleGestureDetector mScaleDetector;
+    private RotateGestureDetector mRotateDetector;
+    private MoveGestureDetector mMoveDetector;
+    
+    private int mTemplateWidth;
+    private int mTemplateHeight;
+    
+    // Constants
+    public static final int MEDIA_GALLERY = 1;
+    public static final int TEMPLATE_SELECTION = 2;
+    public static final int DISPLAY_IMAGE = 3;
+    
+    private final static int IMG_MAX_SIZE = 1000;
+    private final static int IMG_MAX_SIZE_MDPI = 400;
+    private boolean isFirst = true;
+    private float scaledImageCenterX;
+    private float scaledImageCenterY;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.crop_image_layout);
+        ((TextView) findViewById(R.id.tv_title)).setText(R.string.crop_face);
+		TextView tvBack = (TextView) findViewById(R.id.bt_back);
+		tvBack.setBackgroundResource(R.drawable.back_bg);
+		tvBack.setVisibility(View.VISIBLE);
+		tvBack.setOnClickListener(this);
+		TextView tvOk = (TextView)findViewById(R.id.bt_title_right);
+		tvOk.setOnClickListener(this);
+		tvOk.setVisibility(View.VISIBLE);
+		findViewById(R.id.btn_scale_little).setOnClickListener(this);
+		findViewById(R.id.btn_scalse_large).setOnClickListener(this);
+		findViewById(R.id.btn_rotate_anticlockwise).setOnClickListener(this);
+		findViewById(R.id.btn_rotate_clockwise).setOnClickListener(this);
+        
+        mImg = (ImageView) findViewById(R.id.cp_img);
+        mTemplateImg = (RelativeLayout) findViewById(R.id.rl_crop);
+        mImg.setOnTouchListener(this);
+        
+        // Get screen size in pixels.
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        mScreenHeight = metrics.heightPixels;
+        mScreenWidth = metrics.widthPixels;
+        
+        Bitmap faceTemplate = BitmapFactory.decodeResource(getResources(), R.drawable.face_oval);
+        mTemplateWidth = faceTemplate.getWidth();
+        mTemplateHeight = faceTemplate.getHeight();
+        
+        // Set template image accordingly to device screen size.
+//        if (mScreenWidth == 320 && mScreenHeight == 480) {
+//            mTemplateWidth = 218;
+//            mTemplateHeight = 300;
+//            faceTemplate = Bitmap.createScaledBitmap(faceTemplate, mTemplateWidth, mTemplateHeight, true);
+//            mTemplateImg.setImageBitmap(faceTemplate);
+//        }
+        String strPath = getIntent().getStringExtra("path");
+        setSelectedImage(strPath);
+//        mImg.setImageBitmap(photoImg);
+//        mImageHeight = photoImg.getHeight();
+//        mImageWidth = photoImg.getWidth();
+        
+        // View is scaled by matrix, so scale initially
+        mMatrix.postScale(mScaleFactor, mScaleFactor);
+        mImg.setImageMatrix(mMatrix);
+        
+        // Setup Gesture Detectors
+        mScaleDetector = new ScaleGestureDetector(getApplicationContext(), new ScaleListener());
+        mRotateDetector = new RotateGestureDetector(getApplicationContext(), new RotateListener());
+        mMoveDetector = new MoveGestureDetector(getApplicationContext(), new MoveListener());
+        
+        // Instantiate Thread Handler.
+        mCropHandler = new CropHandler(this);
+    }
+    
+    private void onCropImageButton() {
+        // Create progress dialog and display it.
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgressDialog.setMessage("正在裁剪...");
+//        mProgressDialog.show();
+
+        // Setting values so that we can retrive the image from 
+        // ImageView multiple times.
+        mImg.buildDrawingCache(true);
+        mImg.setDrawingCacheEnabled(true);
+        mTemplateImg.buildDrawingCache(true);
+        mTemplateImg.setDrawingCacheEnabled(true);
+        
+        // Create new thread to crop.
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Crop image using the correct template size.
+                Bitmap croppedImg = null;
+//                if (mScreenWidth == 320 && mScreenHeight == 480) {
+//                    if (mSelectedVersion == MainActivity.VERSION_1) {
+//                        croppedImg = ImageProcess.cropImage(mImg.getDrawingCache(true), mTemplateImg.getDrawingCache(true), mTemplateWidth, mTemplateHeight);
+//                    } else {
+//                        croppedImg = ImageProcess.cropImageVer2(mImg.getDrawingCache(true), mTemplateImg.getDrawingCache(true), mTemplateWidth, mTemplateHeight);
+//                    }
+//                } else {
+//                    if (mSelectedVersion == MainActivity.VERSION_1) {
+                        croppedImg = ImageProcess.cropImage(mImg.getDrawingCache(true), mTemplateImg.getDrawingCache(true), mTemplateWidth, mTemplateHeight);
+//                    } else {
+//                        croppedImg = ImageProcess.cropImageVer2(mImg.getDrawingCache(true), mTemplateImg.getDrawingCache(true), mTemplateWidth, mTemplateHeight);
+//                    }
+//                }
+                mImg.setDrawingCacheEnabled(false);
+                mTemplateImg.setDrawingCacheEnabled(false);
+                
+                // Send a message to the Handler indicating the Thread has finished.
+                mCropHandler.obtainMessage(DISPLAY_IMAGE, -1, -1, croppedImg).sendToTarget();
+            }
+        }).start();
+    }
+    private void onCancel() {
+    	finish();
+	}
+    
+    /*
+     * Adjust the size of bitmap before loading it to memory.
+     * This will help the phone by not taking up a lot memory.
+     */
+    private void setSelectedImage(String path) {
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+        if (mScreenWidth == 320 && mScreenHeight == 480) {
+            options.inSampleSize = calculateImageSize(options, IMG_MAX_SIZE_MDPI);
+        } else {
+            options.inSampleSize = calculateImageSize(options, IMG_MAX_SIZE);
+        }
+        
+        options.inJustDecodeBounds = false;
+        Bitmap photoImg = BitmapFactory.decodeFile(path, options);
+        mImageHeight = photoImg.getHeight();
+        mImageWidth = photoImg.getWidth();
+        mImg.setImageBitmap(photoImg);
+    }
+
+    
+    /*
+     * Calculation used to determine by what factor images need to be reduced by.
+     * Images with its longest side below the threshold will not be resized.
+     */
+    private int calculateImageSize(BitmapFactory.Options opts, int threshold) {
+        int scaleFactor = 1;
+        final int height = opts.outHeight;
+        final int width = opts.outWidth;
+
+        if (width >= height) {
+            scaleFactor = Math.round((float) width / threshold);
+        } else {
+            scaleFactor = Math.round((float) height / threshold);
+        }
+        return scaleFactor;
+    }
+    
+    private class CropHandler extends Handler {
+        WeakReference<CropImageActivity> mThisCA;
+        
+        CropHandler(CropImageActivity ca) {
+            mThisCA = new WeakReference<CropImageActivity>(ca);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            
+            CropImageActivity ca = mThisCA.get();
+            if (msg.what == DISPLAY_IMAGE) {
+                mProgressDialog.dismiss();
+                
+                Bitmap cropImg = (Bitmap) msg.obj;
+                Message message= TemplateDetailActivity.mhandler.obtainMessage();
+                message.what = 3;
+                message.obj = cropImg;
+                message.sendToTarget();
+                Intent intent = new Intent();
+                intent.setClass(ca, TemplateDetailActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                IoUtils.readBitmapToFile(StorageUtils.getIndividualCropDirectory(CropImageActivity.this), cropImg);
+            }
+        }
+    }
+    
+    
+    public boolean onTouch(View v, MotionEvent event) {
+        mScaleDetector.onTouchEvent(event);
+        mRotateDetector.onTouchEvent(event);
+        mMoveDetector.onTouchEvent(event);
+
+         scaledImageCenterX = (mImageWidth * mScaleFactor) / 2;
+         scaledImageCenterY = (mImageHeight * mScaleFactor) / 2;
+        if(isFirst){
+        	mFocusX = scaledImageCenterX;
+        	mFocusY = scaledImageCenterY;
+        	isFirst = false;
+        }
+        mMatrix.reset();
+        mMatrix.postScale(mScaleFactor, mScaleFactor);
+        mMatrix.postRotate(mRotationDegrees, scaledImageCenterX, scaledImageCenterY);
+        mMatrix.postTranslate(mFocusX - scaledImageCenterX, mFocusY - scaledImageCenterY);
+
+        ImageView view = (ImageView) v;
+        view.setImageMatrix(mMatrix);
+        return true;
+    }
+    
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            mScaleFactor *= detector.getScaleFactor();
+            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 10.0f));
+            return true;
+        }
+    }
+
+    private class RotateListener extends RotateGestureDetector.SimpleOnRotateGestureListener {
+        @Override
+        public boolean onRotate(RotateGestureDetector detector) {
+        	System.out.println(detector.getRotationDegreesDelta() + "1213");
+            mRotationDegrees -= detector.getRotationDegreesDelta();
+            return true;
+        }
+    }
+
+    private class MoveListener extends MoveGestureDetector.SimpleOnMoveGestureListener {
+        @Override
+        public boolean onMove(MoveGestureDetector detector) {
+            PointF d = detector.getFocusDelta();
+            mFocusX += d.x;
+            mFocusY += d.y;
+
+            return true;
+        }
+    }
+
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.bt_back:
+			onCancel();
+			break;
+		case R.id.bt_title_right:
+			try {
+				onCropImageButton();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		case R.id.btn_scale_little:
+			mScaleFactor *= 0.998;
+			mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 10.0f));
+			mMatrix.reset();
+	        mMatrix.postScale(mScaleFactor, mScaleFactor);
+	        mMatrix.postRotate(mRotationDegrees, scaledImageCenterX, scaledImageCenterY);
+	        mMatrix.postTranslate(mFocusX - scaledImageCenterX, mFocusY - scaledImageCenterY);
+	        mImg.setImageMatrix(mMatrix);
+			break;
+		case R.id.btn_scalse_large:
+			mScaleFactor *= 1.002;
+			mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 10.0f));
+			mMatrix.reset();
+			
+	        mMatrix.postScale(mScaleFactor, mScaleFactor);
+	        mMatrix.postRotate(mRotationDegrees, scaledImageCenterX, scaledImageCenterY);
+	        mMatrix.postTranslate(mFocusX - scaledImageCenterX, mFocusY - scaledImageCenterY);
+	        mImg.setImageMatrix(mMatrix);
+			break;
+		case R.id.btn_rotate_clockwise:
+			mRotationDegrees -= -0.05;
+			mMatrix.reset();
+			 mMatrix.postScale(mScaleFactor, mScaleFactor);
+		     mMatrix.postRotate(mRotationDegrees, scaledImageCenterX, scaledImageCenterY);
+		     mMatrix.postTranslate(mFocusX - scaledImageCenterX, mFocusY - scaledImageCenterY);
+		     mImg.setImageMatrix(mMatrix);
+			mMatrix.postRotate(mRotationDegrees, scaledImageCenterX, scaledImageCenterY);
+			break;
+		case R.id.btn_rotate_anticlockwise:
+			mRotationDegrees -= 0.05;
+			mMatrix.reset();
+			mMatrix.postScale(mScaleFactor, mScaleFactor);
+		    mMatrix.postRotate(mRotationDegrees, scaledImageCenterX, scaledImageCenterY);
+		    mMatrix.postTranslate(mFocusX - scaledImageCenterX, mFocusY - scaledImageCenterY);
+		    mImg.setImageMatrix(mMatrix);
+//			mMatrix.postRotate(mRotationDegrees, scaledImageCenterX, scaledImageCenterY);
+			break;
+			
+		default:
+			break;
+		}
+	}
+}

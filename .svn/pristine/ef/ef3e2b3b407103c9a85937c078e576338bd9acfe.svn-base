@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/gray_author" 
+    android:padding="10dp"
+    android:id="@+id/layout_frame">
+
+    <com.exmart.qiyishow.ui.view.RoundImageView
+        android:id="@+id/user_photo"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_centerVertical="true"
+        android:background="@drawable/ic_launcher" />
+    <TextView 
+        android:id="@+id/comment_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:text="小啦啦"
+        android:layout_toRightOf="@id/user_photo"
+        android:layout_marginLeft="5dp"/>
+    <TextView 
+        android:id="@+id/comment_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:text="很有意思"
+        android:layout_toRightOf="@id/user_photo"
+        android:layout_below="@id/comment_user"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"/>
+    <TextView 
+        android:id="@+id/comment_replay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:background="@drawable/ic_reply"
+        android:layout_alignParentRight="true"/>
+    <TextView 
+        android:id="@+id/comment_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:text="4分钟前"
+        android:layout_below="@id/comment_user"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="5dp"/>
+
+</RelativeLayout>

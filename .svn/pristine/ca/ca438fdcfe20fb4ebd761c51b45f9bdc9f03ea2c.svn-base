@@ -1,0 +1,347 @@
+package com.exmart.qiyishow.ui.home;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.os.Message;
+import android.os.Build.VERSION;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.provider.MediaStore.Images.Media;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.GridView;
+import android.widget.TextView;
+
+import com.exmart.qiyishow.R;
+import com.exmart.qiyishow.adapter.SelectFaceAdapter;
+import com.exmart.qiyishow.loader.core.ImageLoader;
+import com.exmart.qiyishow.loader.core.assist.ImageSize;
+import com.exmart.qiyishow.loader.utils.StorageUtils;
+import com.exmart.qiyishow.ui.frame.BaseActivity;
+/**
+ * 选择头像
+ * @author ye
+ *
+ */
+public class SelectFaceActivity extends BaseActivity implements OnClickListener, OnItemClickListener{
+	
+	private static final int INTNET_CAMERA = 0;
+	private static final int GALLERY_KITKAT_INTENT_CALLED = 1;
+	private static final int GALLERY_INTENT_CALLED = 2;
+	private static final int CROP_PIC = 3;
+	private Uri mCameraUri;
+	private GridView mGridView;
+	private SelectFaceAdapter adapter;
+	private List<String> mPathList;
+
+	@SuppressLint("NewApi")
+	@Override
+	protected void loadLayout() {
+		setContentView(R.layout.select_face_layout);
+		((TextView) findViewById(R.id.tv_title)).setText(R.string.select_face);
+		TextView tvBack = (TextView) findViewById(R.id.bt_back);
+		tvBack.setBackgroundResource(R.drawable.back_bg);
+		tvBack.setVisibility(View.VISIBLE);
+		tvBack.setOnClickListener(this);
+		initFaceData();
+		findViewById(R.id.bt_make_face).setOnClickListener(this);
+		mGridView = (GridView) findViewById(R.id.Grid_Face);
+		adapter = new SelectFaceAdapter(this, mPathList);
+		mGridView.setAdapter(adapter);
+		mGridView.setOnItemClickListener(this);
+		TextView btnDelete = (TextView)findViewById(R.id.bt_title_right);
+		btnDelete.setVisibility(View.VISIBLE);
+		btnDelete.setBackground(null);
+		btnDelete.setText("清除");
+		btnDelete.setOnClickListener(this);
+		
+	}
+
+	private void initFaceData() {
+		mPathList = new ArrayList<String>();
+		File targetFile = StorageUtils.getIndividualCropDirectory(this);
+		try {
+			File[] files = targetFile.listFiles();
+			for (int i = 0; i < files.length; i++) {
+				File f = files[i];
+				if (f.isFile()) {
+					mPathList.add(f.getPath());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	protected void loadListener() {
+		
+	}
+
+	@Override
+	protected void Request() {
+		
+	}
+
+	@Override
+	protected void logic() {
+		
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.bt_back:
+			finish();
+			break;
+		case R.id.bt_make_face:
+			showDialog();
+			break;
+		case R.id.bt_title_right:
+			File targetFile = StorageUtils.getIndividualCropDirectory(this);
+			try {
+				File[] files = targetFile.listFiles();
+				for (int i = 0; i < files.length; i++) {
+					File f = files[i];
+					if (f.isFile()) {
+						f.delete();
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			mPathList.clear();
+			adapter.notifyDataSetChanged();
+			break;
+		
+
+		default:
+			break;
+		}
+	}
+	private void showDialog(){
+		Builder builder = new AlertDialog.Builder(this);
+		
+		builder.setItems(R.array.dialog_select_picture, new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Intent intent = null;
+				switch (which) {
+				case 0:
+					String timeTag = "" + System.currentTimeMillis();
+					ContentValues values = new ContentValues();
+					values.put(Media.TITLE, timeTag);
+					mCameraUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+					intent = new Intent("android.media.action.IMAGE_CAPTURE");
+					intent.putExtra(MediaStore.EXTRA_OUTPUT, mCameraUri);
+					startActivityForResult(intent, INTNET_CAMERA);
+					System.out.println(mCameraUri);
+					break;
+				case 1:
+					intent = new Intent(Intent.ACTION_GET_CONTENT);//ACTION_OPEN_DOCUMENT  
+					intent.addCategory(Intent.CATEGORY_OPENABLE);  
+					intent.setType("image/*");  
+					if(android.os.Build.VERSION.SDK_INT>=android.os.Build.VERSION_CODES.KITKAT){                  
+					        startActivityForResult(intent, GALLERY_KITKAT_INTENT_CALLED);    
+					}else{                
+					        startActivityForResult(intent, GALLERY_INTENT_CALLED);   
+					}   
+				    break;
+
+				default:
+					break;
+				}
+			}
+		});
+		builder.setTitle(getString(R.string.select_picture));
+		builder.show();
+	}
+	@SuppressLint("NewApi")
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if(resultCode != Activity.RESULT_OK){
+			return;
+		}
+		if(requestCode == INTNET_CAMERA || requestCode == GALLERY_INTENT_CALLED || requestCode == GALLERY_KITKAT_INTENT_CALLED){
+			String imgPath = null;
+			Uri originalUri = null;
+			if( requestCode == INTNET_CAMERA){
+				originalUri = mCameraUri;
+				imgPath = getGalleryImagePath(originalUri);
+				System.out.println(imgPath);
+			}else if (requestCode == GALLERY_KITKAT_INTENT_CALLED){
+				originalUri = data.getData();
+				imgPath = getPath(this, originalUri);
+			}else if (requestCode == GALLERY_INTENT_CALLED){
+				originalUri = data.getData();
+				imgPath = getGalleryImagePath(originalUri);
+			}
+			Intent intent = new Intent(this, CropImageActivity.class);
+			intent.putExtra("path", imgPath);
+			this.startActivityForResult(intent, CROP_PIC);
+		}
+		
+	}
+	@SuppressLint("NewApi")
+	public String getPath(final Context context, final Uri uri){
+		System.out.println(Build.VERSION.SDK_INT);
+		
+		System.out.println(Build.VERSION_CODES.KITKAT);
+		final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+		if (isKitKat && DocumentsContract.isDocumentUri(context, uri)){
+			if(isExternalStorageDocument(uri)){
+				final String docId = DocumentsContract.getDocumentId(uri);
+				final String[] split = docId.split(":");
+				final String type = split[0];
+				
+				if("primary".equalsIgnoreCase(type)){
+					return Environment.getExternalStorageState() + "/" + split[1];
+				}
+			}else if (isDownloadsDocument(uri)) {
+				final String id = DocumentsContract.getDocumentId(uri);
+				final Uri contentUri = ContentUris.withAppendedId(
+						uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+				return getDataColumn(context, contentUri, null, null);
+			}else if (isMediaDocument(uri)){
+				final String docId = DocumentsContract.getDocumentId(uri);
+				final String[] split = docId.split(":");
+				final String type = split[0];
+				
+				Uri contentUri = null;
+				contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+				final String selection = "_id=?";
+				final String[] selectionArgs = new String[]{split[1]};
+				return getDataColumn(context, contentUri, selection, selectionArgs);
+						
+			}else if("file".equalsIgnoreCase(uri.getScheme())){
+				return uri.getPath();
+			}
+		} else {
+			return getGalleryImagePath(uri);
+		}
+		return null;
+	}
+	public static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs){
+		Cursor cursor = null;
+		final String column = "_data";
+		final String[] projection = {column};
+		try {
+			cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+			if(cursor != null && cursor.moveToFirst()) {
+				final int index = cursor.getColumnIndexOrThrow(column);
+				return cursor.getString(index);
+			}
+			cursor.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			if (cursor != null){
+				if(VERSION.SDK_INT < 14) {  
+				    cursor.close();  
+				 }  
+			}
+		}
+			return null;
+	
+	}
+	public String getPathFast(Uri uri) {
+		Cursor cursor = null;
+		try{
+			String[] projection = { MediaStore.Images.Media.DATA };
+			cursor = this.managedQuery(uri, projection,
+					null, null, null);
+			int nIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+			cursor.moveToFirst();
+			String str = cursor.getString(nIndex);
+			return str;
+		} finally{
+			if(cursor != null){
+				if(VERSION.SDK_INT < 14) {  
+				    cursor.close();  
+				 }  
+			}
+		}
+	}
+	private String getGalleryImagePath(Uri uri) {
+        String filePath = "";
+//        if (data.getType() == null) {
+            // For getting images from gallery.
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+            Cursor cursor = getContentResolver().query(uri, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            filePath = cursor.getString(columnIndex);
+            cursor.close();
+//        } 
+        return filePath;
+    }
+	/**
+	 * @param uri The Uri to check.
+	 * @return Whether the Uri authority is ExternalStorageProvider.
+	 */
+	public static boolean isExternalStorageDocument(Uri uri) {
+	    return "com.android.externalstorage.documents".equals(uri.getAuthority());
+	}
+
+	/**
+	 * @param uri The Uri to check.
+	 * @return Whether the Uri authority is DownloadsProvider.
+	 */
+	public static boolean isDownloadsDocument(Uri uri) {
+	    return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+	}
+
+	/**
+	 * @param uri The Uri to check.
+	 * @return Whether the Uri authority is MediaProvider.
+	 */
+	public static boolean isMediaDocument(Uri uri) {
+	    return "com.android.providers.media.documents".equals(uri.getAuthority());
+	}
+
+	/**
+	 * @param uri The Uri to check.
+	 * @return Whether the Uri authority is Google Photos.
+	 */
+	public static boolean isGooglePhotosUri(Uri uri) {
+	    return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		String path = mPathList.get(position);
+		String loadPath = "file://" + path;
+		Bitmap bitmap = ImageLoader.getInstance().loadImageSync(loadPath, null, adapter.getOptions());
+        Message message= TemplateDetailActivity.mhandler.obtainMessage();
+        message.what = 3;
+        message.obj = bitmap;
+        message.sendToTarget();
+        Intent intent = new Intent();
+        intent.setClass(this, TemplateDetailActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        startActivity(intent);
+	}
+}

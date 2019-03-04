@@ -1,0 +1,58 @@
+package com.exmart.qiyishow.adapter;
+
+
+import com.exmart.qiyishow.R;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+/**
+ * 特效列表
+ * @author ye
+ *
+ */
+
+public class EffectsListAdapter extends BaseAdapter{
+	private Context mContext;
+	private ViewHolder mViewHodler;
+	private LayoutInflater mInflater;
+	
+	public EffectsListAdapter(Context context){
+		this.mContext = context;
+		mInflater = LayoutInflater.from(mContext);
+	}
+
+	@Override
+	public int getCount() {
+		return 2;
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return position;
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		if(convertView == null){
+			convertView = mInflater.inflate(R.layout.effects_list_item, null);
+			mViewHodler = new ViewHolder();
+			
+			convertView.setTag(mViewHodler);
+		} else {
+			mViewHodler = (ViewHolder)convertView.getTag();
+		}
+		return convertView;
+	}
+	
+	class ViewHolder {
+	}
+
+
+}
